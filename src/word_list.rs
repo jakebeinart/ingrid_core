@@ -2,12 +2,18 @@ use either::Either;
 use lazy_static::lazy_static;
 use smallvec::SmallVec;
 use std::collections::{HashMap, HashSet};
+#[cfg(not(target_arch = "wasm32"))]
 use std::ffi::OsString;
 use std::fmt::Debug;
+#[cfg(not(target_arch = "wasm32"))]
 use std::fs::File;
 use std::hash::{DefaultHasher, Hash, Hasher};
+#[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
+#[cfg(not(target_arch = "wasm32"))]
 use std::{fmt, fs, io, mem};
+#[cfg(target_arch = "wasm32")]
+use std::{fmt, mem};
 use unicode_categories::UnicodeCategories;
 use unicode_normalization::UnicodeNormalization;
 
@@ -114,6 +120,7 @@ impl fmt::Display for WordListError {
 #[derive(Debug, Clone)]
 pub enum WordListSourceConfigProvider {
     Memory { words: Vec<(String, u16)> },
+    #[cfg(not(target_arch = "wasm32"))]
     File { path: OsString },
     FileContents { contents: &'static str },
 }
@@ -150,6 +157,7 @@ impl WordListSourceConfig {
         match &self.provider {
             WordListSourceConfigProvider::Memory { .. }
             | WordListSourceConfigProvider::FileContents { .. } => None,
+            #[cfg(not(target_arch = "wasm32"))]
             WordListSourceConfigProvider::File { path, .. } => {
                 let mut hasher = DefaultHasher::new();
                 path.hash(&mut hasher);
@@ -272,6 +280,7 @@ fn parse_word_list_file_contents(
     entries
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn read_file_tolerating_invalid_encoding(path: &OsString) -> Result<String, io::Error> {
     let mut file = File::open(path)?;
     let mut buf = vec![];
@@ -317,6 +326,7 @@ pub fn load_words_from_source(source: &WordListSourceConfig) -> RawWordListConte
             entries
         }
 
+        #[cfg(not(target_arch = "wasm32"))]
         WordListSourceConfigProvider::File { path, .. } => {
             if let Ok(contents) = read_file_tolerating_invalid_encoding(path) {
                 parse_word_list_file_contents(
@@ -396,6 +406,7 @@ pub fn refresh_source_if_needed(
 type OnUpdateCallback = Box<dyn FnMut(&mut WordList, &[GlobalWordId]) + Send + Sync>;
 
 /// Errors that can arise when syncing to disk, keyed by the relevant source id.
+#[cfg(not(target_arch = "wasm32"))]
 pub type SyncErrors = HashMap<String, io::Error>;
 
 /// A struct representing the currently-loaded word list(s). This contains information that is
@@ -1018,6 +1029,7 @@ impl WordList {
     /// be written (probably due to something like permissions issues or a drive not being
     /// mounted), return error info, reset `sync_state` to `Synced`, and keep the pending updates
     /// in place.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn sync_updates_to_disk(&mut self) -> (bool, SyncErrors) {
         let mut should_refresh_overall = false;
         let mut sync_errors: SyncErrors = HashMap::new();

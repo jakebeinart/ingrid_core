@@ -1136,6 +1136,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(target_arch = "wasm32"))]
     fn test_abort_fill_attempt() {
         let grid_config = generate_config_with_min_score(
             "
