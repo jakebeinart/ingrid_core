@@ -10,7 +10,9 @@ use rand::prelude::*;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::sync::atomic::Ordering;
-use std::time::{Duration, Instant};
+use std::time::Duration;
+
+use instant::Instant;
 
 use crate::arc_consistency::{
     establish_arc_consistency, ArcConsistencyAdapter, ArcConsistencyFailure, EliminationSet,
@@ -827,7 +829,9 @@ mod tests {
     use indoc::indoc;
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
-    use std::time::{Duration, Instant};
+    use std::time::Duration;
+
+    use instant::Instant;
 
     fn load_word_list(max_length: usize) -> WordList {
         let word_list = WordList::new(word_list_source_config(), None, Some(max_length), Some(5));

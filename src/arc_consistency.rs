@@ -596,7 +596,7 @@ mod tests {
     use crate::grid_config::{generate_grid_config_from_template_string, OwnedGridConfig};
     use crate::word_list::tests::word_list_source_config;
     use crate::word_list::WordList;
-    use std::time::Instant;
+    use instant::Instant;
 
     fn generate_config(template: &str) -> OwnedGridConfig {
         let template = template.trim();
